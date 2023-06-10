@@ -28,8 +28,8 @@ const verifyJWT = (req, res, next) => {
         .status(401)
         .send({ error: error, message: "Unauthorized access" });
     }
-    req.decoded = decoded  //send token data
-    next()
+    req.decoded = decoded; //send token data
+    next();
   });
 };
 
@@ -52,6 +52,10 @@ async function run() {
     // Connect the client to the server	(optional starting in v4.7)
     await client.connect();
 
+    //All collections
+    const userollecion = client.db("goalRush").collection("users");
+    const classCollecion = client.db("goalRush").collection("classes");
+
     //start jwt here  || req from login
     app.post("/jwt", (req, res) => {
       const userData = req.body;
@@ -62,6 +66,24 @@ async function run() {
       });
 
       res.send({ token }); //why obj??
+    });
+
+    // All users routes
+    app.post("/users", async (req, res) => {
+      const newUserData = req.body;
+
+      //DB
+      const result = await userollecion.insertOne(newUserData);
+      res.send(result);
+    });
+
+    //All class routes
+    app.post("/all-class", async (req, res) => {
+      const newClassData = req.body;
+
+      //DB
+      const result = await classCollecion.insertOne(newClassData);
+      res.send(result);
     });
 
     // Send a ping to confirm a successful connection
