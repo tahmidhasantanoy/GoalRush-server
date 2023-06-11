@@ -95,6 +95,9 @@ async function run() {
       const result = {admin : queryUser?.role === "admin"}
       res.send(result)
     });
+
+
+
     //Check the user is instructor or not
     app.get("/users/instructor/:email",verifyJWT, async(req, res) => {
       const email = req.params.email;
@@ -110,9 +113,29 @@ async function run() {
       const query = {email : email}
       const queryUser = await userCollecion.findOne(query)
 
-      const result = {admin : queryUser?.role === "instructor"}
+      const result = {instructor : queryUser?.role === "instructor"}
       res.send(result)
     });
+
+
+        //Check the user is generalUser or not
+        app.get("/users/generalUser/:email",verifyJWT, async(req, res) => {
+          const email = req.params.email;
+          console.log(email);
+    
+          if (email !== req.decoded.email) {
+            return res
+              .status(401)
+              .send({ eror: true, message: "Forbidden access" });
+          }
+    
+    
+          const query = {email : email}
+          const queryUser = await userCollecion.findOne(query)
+    
+          const result = {generalUser : queryUser?.role !== "instructor" || "admin"} //
+          res.send(result)
+        });
 
     //All class routes
     app.post("/all-class", async (req, res) => {
