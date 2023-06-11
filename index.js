@@ -22,7 +22,7 @@ const verifyJWT = (req, res, next) => {
   const token = authorization.split(" ")[1];
 
   //verify jwt
-  jwt.verify(token, processenv.SECRET_ACCESS_TOKEN, (err, decoded) => {
+  jwt.verify(token, process.env.SECRET_ACCESS_TOKEN, (err, decoded) => {
     if (err) {
       return res
         .status(401)
@@ -53,7 +53,7 @@ async function run() {
     await client.connect();
 
     //All collections
-    const userollecion = client.db("goalRush").collection("users");
+    const userCollecion = client.db("goalRush").collection("users");
     const classCollecion = client.db("goalRush").collection("classes");
 
     //start jwt here  || req from login
@@ -73,8 +73,27 @@ async function run() {
       const newUserData = req.body;
 
       //DB
-      const result = await userollecion.insertOne(newUserData);
+      const result = await userCollecion.insertOne(newUserData);
       res.send(result);
+    });
+
+    //Check the user is admin or not
+    app.get("/users/admin/:email",verifyJWT, async(req, res) => {
+      const email = req.params.email;
+      console.log(email);
+
+      if (email !== req.decoded.email) {
+        return res
+          .status(401)
+          .send({ eror: true, message: "Forbidden access" });
+      }
+
+
+      const query = {email : email}
+      const queryUser = await userCollecion.findOne(query)
+
+      const result = {admin : queryUser?.role === "admin"}
+      res.send(result)
     });
 
     //All class routes
