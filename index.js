@@ -65,8 +65,8 @@ async function run() {
     const userCollection = client.db("goalRush").collection("users");
     const classCollection = client.db("goalRush").collection("classes");
     const SelectClassCollection = client
-    .db("goalRush")
-    .collection("SelectClasses");
+      .db("goalRush")
+      .collection("SelectClasses");
     const PaymentCollection = client.db("goalRush").collection("Payments");
 
     //start jwt here  || req from login
@@ -156,12 +156,11 @@ async function run() {
       res.send(result);
     });
 
-    //Get all the instructor || Can't enter this route
+    //Get all the instructor
     app.get(
       "/users/instructors",
       /* verifyJWT, */ async (req, res) => {
         const query = { role: "instructor" };
-        // console.log(query);
 
         const result = await userCollection.find(query).toArray();
         res.send(result);
@@ -181,6 +180,17 @@ async function run() {
     app.get("/all-class/selected", async (req, res) => {
       //DB
       const result = await SelectClassCollection.find().toArray();
+      res.send(result);
+    });
+
+    //Get added class
+    app.get("/all-class/instructor", async (req, res) => {
+      const email = req.query?.instructorEmail;
+      console.log(email);
+      const query = { instructorEmail: email };
+      console.log(query);
+
+      const result = await classCollection.find(query).toArray();
       res.send(result);
     });
 
@@ -212,20 +222,39 @@ async function run() {
     });
 
     //Create payment intent || 6:53
-    app.post("/create-payment-intent", async(req, res) => {
+    app.post("/create-payment-intent", async (req, res) => {
       const { price } = req.body;
       const amount = price * 100;
 
       const paymentIntent = await stripe.paymentIntents.create({
-        amount : amount,
-        currency : "usd",
-        payment_method_types : ['card']
-
-      })
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
       //7:00
       res.send({
-        clientSecret : paymentIntent.client_secret
-      })
+        clientSecret: paymentIntent.client_secret,
+      });
+    });
+
+    // payment apis
+    // app.post("/payments", async (req, res) => {
+    app.post("/payments/:deleteId", async (req, res) => {
+      //ch
+      const paymentData = req.body;
+      const deleteClassId = req.params.deleteId; //ch
+      console.log(deleteClassId);
+
+      //DB
+      // For post
+      const insertResult = await PaymentCollection.insertOne(paymentData);
+
+      //For Delete || ReferenceError: selectClassId is not defined
+      // const query = { _id: new ObjectId(selectClassId) }; //for one
+      const query = { _id: new ObjectId(deleteClassId) }; //ch
+      console.log(query);
+      const deleteClass = await SelectClassCollection.deleteMany(query);
+      res.send({ insertResult, deleteClass });
     });
 
     // Send a ping to confirm a successful connection
