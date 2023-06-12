@@ -41,7 +41,7 @@ const verifyJWT = (req, res, next) => {
 };
 
 //Mongodb
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 const { status } = require("express/lib/response");
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.oc9fgut.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -174,6 +174,13 @@ async function run() {
       }
     );
 
+    //Get all selected classes
+    app.get("/all-class/selected", async (req, res) => {
+      //DB
+      const result = await SelectClassCollection.find().toArray();
+      res.send(result);
+    });
+
     //Instructor added classes ...
     app.post("/all-class", async (req, res) => {
       const newClassData = req.body;
@@ -183,12 +190,21 @@ async function run() {
       res.send(result);
     });
 
-    //Sudent selected classes
+    //Student selected classes
     app.post("/all-class/selected", async (req, res) => {
       const selectClassData = req.body;
 
       //DB
       const result = await SelectClassCollection.insertOne(selectClassData);
+      res.send(result);
+    });
+
+    app.delete("/all-class/selected/:delete_id", async (req, res) => {
+      const id = req.params.delete_id;
+
+      //DB
+      const query = { _id: new ObjectId(id) };
+      const result = await SelectClassCollection.deleteOne(query);
       res.send(result);
     });
 
