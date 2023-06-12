@@ -2,6 +2,8 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
+//ch 6:30 no-err
+const stripe = require("stripe")(process.env.PAYMENT_SECRET_TOKEN);
 const app = express();
 const port = process.env.PORT || 5000;
 
@@ -63,8 +65,9 @@ async function run() {
     const userCollection = client.db("goalRush").collection("users");
     const classCollection = client.db("goalRush").collection("classes");
     const SelectClassCollection = client
-      .db("goalRush")
-      .collection("SelectClasses");
+    .db("goalRush")
+    .collection("SelectClasses");
+    const PaymentCollection = client.db("goalRush").collection("Payments");
 
     //start jwt here  || req from login
     app.post("/jwt", (req, res) => {
@@ -103,11 +106,11 @@ async function run() {
     app.get("/users/admin/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
-      if (email !== req.decoded.email) {
-        return res
-          .status(401)
-          .send({ eror: true, message: "Forbidden access" });
-      }
+      // if (email !== req.decoded.email) {
+      //   return res
+      //     .status(401)
+      //     .send({ eror: true, message: "Forbidden access" });
+      // }
 
       const query = { email: email };
       const queryUser = await userCollection.findOne(query);
@@ -120,11 +123,11 @@ async function run() {
     app.get("/users/instructor/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
-      if (email !== req.decoded.email) {
-        return res
-          .status(401)
-          .send({ eror: true, message: "Forbidden access" });
-      }
+      // if (email !== req.decoded.email) {
+      //   return res
+      //     .status(401)
+      //     .send({ eror: true, message: "Forbidden access" });
+      // }
 
       const query = { email: email };
       const queryUser = await userCollection.findOne(query);
@@ -137,11 +140,11 @@ async function run() {
     app.get("/users/generalUser/:email", verifyJWT, async (req, res) => {
       const email = req.params.email;
 
-      if (email !== req.decoded.email) {
-        return res
-          .status(401)
-          .send({ eror: true, message: "Forbidden access" });
-      }
+      // if (email !== req.decoded.email) {
+      //   return res
+      //     .status(401)
+      //     .send({ eror: true, message: "Forbidden access" });
+      // }
 
       const query = { email: email };
       const queryUser = await userCollection.findOne(query);
@@ -206,6 +209,23 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result = await SelectClassCollection.deleteOne(query);
       res.send(result);
+    });
+
+    //Create payment intent || 6:53
+    app.post("/create-payment-intent", async(req, res) => {
+      const { price } = req.body;
+      const amount = price * 100;
+
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount : amount,
+        currency : "usd",
+        payment_method_types : ['card']
+
+      })
+      //7:00
+      res.send({
+        clientSecret : paymentIntent.client_secret
+      })
     });
 
     // Send a ping to confirm a successful connection
