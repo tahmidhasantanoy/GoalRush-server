@@ -120,7 +120,6 @@ async function run() {
         const result = { admin: queryUser?.role === "admin" };
         res.send(result);
       }
-
     });
 
     //Check the user is instructor or not
@@ -159,6 +158,15 @@ async function run() {
       }; //
       res.send(result);
     });
+
+    //Get all user
+    app.get(
+      "/users",
+      /*  verifyJWT, */ async (req, res) => {
+        const result = await userCollection.find().toArray();
+        res.send(result);
+      }
+    );
 
     //Get all the instructor
     app.get(
