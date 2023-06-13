@@ -221,15 +221,14 @@ async function run() {
       res.send(result);
     });
 
-
     //get payment history
-    app.get("/payments",async(req,res) => {
+    app.get("/payments", async (req, res) => {
       const email = req.query?.email;
       const query = { email: email };
 
       const result = await PaymentCollection.find(query).toArray();
       res.send(result);
-    })
+    });
 
     //Create payment intent || 6:53
     app.post("/create-payment-intent", async (req, res) => {
@@ -261,9 +260,10 @@ async function run() {
 
       //For Delete || ReferenceError: selectClassId is not defined
       // const query = { _id: new ObjectId(selectClassId) }; //for one
-      const query = { _id: new ObjectId(deleteClassId) }; //ch
+      const query = { classId: deleteClassId }; //ch
       console.log(query);
-      const deleteClass = await SelectClassCollection.deleteMany(query);
+      const deleteClass = await SelectClassCollection.deleteOne(query);
+      console.log(deleteClass);
       res.send({ insertResult, deleteClass });
     });
 
