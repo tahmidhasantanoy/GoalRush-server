@@ -257,6 +257,23 @@ async function run() {
       res.send(result);
     });
 
+
+    //Status change to accept || 6:42 || /all-class/accept/
+    app.patch("/all-class/accept/:class_id", async (req, res) => {
+      const id = req.params.class_id;
+      const filter = { _id: new ObjectId(id) };
+
+      const updateDoc = {
+        $set: {
+          status: "accept",
+        },
+      };
+
+      //DB
+      const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     app.delete("/all-class/selected/:delete_id", async (req, res) => {
       const id = req.params.delete_id;
 
