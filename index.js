@@ -195,7 +195,6 @@ async function run() {
       res.send(result);
     });
 
-
     //make instructor
     app.patch("/users/instructor/:instructor_id", async (req, res) => {
       const id = req.params.instructor_id;
@@ -239,6 +238,15 @@ async function run() {
       res.send(result);
     });
 
+    //Get specific class
+    app.get("/all-class/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+
+      const result = await classCollection.findOne(query);
+      res.send(result);
+    });
+
     //Instructor added classes ...
     app.post("/all-class", async (req, res) => {
       const newClassData = req.body;
@@ -257,8 +265,7 @@ async function run() {
       res.send(result);
     });
 
-
-    //Status change to accept 
+    //Status change to accept
     app.patch("/all-class/accept/:class_id", async (req, res) => {
       const id = req.params.class_id;
       const filter = { _id: new ObjectId(id) };
@@ -274,8 +281,7 @@ async function run() {
       res.send(result);
     });
 
-
-    //Status change to deny 
+    //Status change to deny
     app.patch("/all-class/deny/:class_id", async (req, res) => {
       const id = req.params.class_id;
       const filter = { _id: new ObjectId(id) };
@@ -288,6 +294,34 @@ async function run() {
 
       //DB
       const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+    //Update specific class
+    app.put("/all-class/:id", async (req, res) => {
+      const id = req.params.id;
+      console.log(id);
+      const filter = { _id: new ObjectId(id) };
+
+      const options = { upsert: true };
+      const updatedClass = req.body;
+      const updateDoc = {
+        $set: {
+          classname: updatedClass.classname,
+          instructorName: updatedClass.instructorName,
+          instructorEmail: updatedClass.instructorEmail,
+          availableSeats: updatedClass.availableSeats,
+          price: updatedClass.price,
+          image: updatedClass.image,
+          status: updatedClass.status,
+        },
+      };
+
+      const result = await classCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
       res.send(result);
     });
 
