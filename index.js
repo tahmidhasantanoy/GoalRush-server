@@ -179,6 +179,22 @@ async function run() {
       }
     );
 
+    //Make admin
+    app.patch("/users/:admin_id", async (req, res) => {
+      const id = req.params.admin_id;
+      const filter = { _id: new ObjectId(id) };
+
+      const updateDoc = {
+        $set: {
+          role: "admin",
+        },
+      };
+
+      //DB
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     //All class routes
     app.get(
       "/all-class",
