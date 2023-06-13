@@ -258,7 +258,7 @@ async function run() {
     });
 
 
-    //Status change to accept || 6:42 || /all-class/accept/
+    //Status change to accept 
     app.patch("/all-class/accept/:class_id", async (req, res) => {
       const id = req.params.class_id;
       const filter = { _id: new ObjectId(id) };
@@ -266,6 +266,23 @@ async function run() {
       const updateDoc = {
         $set: {
           status: "accept",
+        },
+      };
+
+      //DB
+      const result = await classCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
+
+    //Status change to deny 
+    app.patch("/all-class/deny/:class_id", async (req, res) => {
+      const id = req.params.class_id;
+      const filter = { _id: new ObjectId(id) };
+
+      const updateDoc = {
+        $set: {
+          status: "deny",
         },
       };
 
