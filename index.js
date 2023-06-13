@@ -195,6 +195,23 @@ async function run() {
       res.send(result);
     });
 
+
+    //make instructor
+    app.patch("/users/instructor/:instructor_id", async (req, res) => {
+      const id = req.params.instructor_id;
+      const filter = { _id: new ObjectId(id) };
+
+      const updateDoc = {
+        $set: {
+          role: "instructor",
+        },
+      };
+
+      //DB
+      const result = await userCollection.updateOne(filter, updateDoc);
+      res.send(result);
+    });
+
     //All class routes
     app.get(
       "/all-class",
