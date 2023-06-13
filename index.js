@@ -113,10 +113,14 @@ async function run() {
       // }
 
       const query = { email: email };
-      const queryUser = await userCollection.findOne(query);
+      console.log(query);
+      if (query) {
+        const queryUser = await userCollection.findOne(query);
+        console.log(queryUser);
+        const result = { admin: queryUser?.role === "admin" };
+        res.send(result);
+      }
 
-      const result = { admin: queryUser?.role === "admin" };
-      res.send(result);
     });
 
     //Check the user is instructor or not
