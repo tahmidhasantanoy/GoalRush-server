@@ -220,6 +220,15 @@ async function run() {
       }
     );
 
+    //Top classes
+    app.get(
+      "/all-class/topClass",
+      /*  verifyJWT, */ async (req, res) => {
+        const result = await classCollection.find().limit(6).toArray();
+        res.send(result);
+      }
+    );
+
     //Get all selected classes
     app.get("/all-class/selected", async (req, res) => {
       //DB
