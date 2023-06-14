@@ -181,7 +181,6 @@ async function run() {
     app.get(
       "/users/topInstructor",
       /*  verifyJWT, */ async (req, res) => {
-
         const query = { role: "instructor" };
 
         const result = await userCollection.find(query).limit(6).toArray();
@@ -316,6 +315,28 @@ async function run() {
       res.send(result);
     });
 
+    //Send feedback
+    app.put("/all-class/classFeedback/:id", async (req, res) => {
+      const id = req.params.id;
+      // console.log(id);
+      const filter = { _id: new ObjectId(id) };
+
+      const options = { upsert: true };
+      const feedbackData = JSON.stringify(req.body);
+      const updateDoc = {
+        $set: {
+          feedback: feedbackData,
+        },
+      };
+
+      const result = await classCollection.updateOne(
+        filter,
+        updateDoc,
+        options
+      );
+      res.send(result);
+    });
+
     //Update specific class
     app.put("/all-class/:id", async (req, res) => {
       const id = req.params.id;
@@ -390,7 +411,7 @@ async function run() {
       // For post
       const insertResult = await PaymentCollection.insertOne(paymentData);
 
-      //For Delete 
+      //For Delete
       const query = { classId: deleteClassId }; //for one
       console.log(query);
       const deleteClass = await SelectClassCollection.deleteOne(query);
