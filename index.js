@@ -113,10 +113,9 @@ async function run() {
       // }
 
       const query = { email: email };
-      console.log(query);
       if (query) {
         const queryUser = await userCollection.findOne(query);
-        console.log(queryUser);
+        // console.log(queryUser);
         const result = { admin: queryUser?.role === "admin" };
         res.send(result);
       }
@@ -175,6 +174,18 @@ async function run() {
         const query = { role: "instructor" };
 
         const result = await userCollection.find(query).toArray();
+        res.send(result);
+      }
+    );
+
+    app.get(
+      "/users/topInstructor",
+      /*  verifyJWT, */ async (req, res) => {
+
+        const query = { role: "instructor" };
+
+        const result = await userCollection.find(query).limit(6).toArray();
+        console.log(result);
         res.send(result);
       }
     );
@@ -239,9 +250,8 @@ async function run() {
     //Get added class
     app.get("/all-class/instructor", async (req, res) => {
       const email = req.query?.instructorEmail;
-      console.log(email);
       const query = { instructorEmail: email };
-      console.log(query);
+      // console.log(query);
 
       const result = await classCollection.find(query).toArray();
       res.send(result);
@@ -309,7 +319,7 @@ async function run() {
     //Update specific class
     app.put("/all-class/:id", async (req, res) => {
       const id = req.params.id;
-      console.log(id);
+      // console.log(id);
       const filter = { _id: new ObjectId(id) };
 
       const options = { upsert: true };
@@ -373,19 +383,18 @@ async function run() {
     app.post("/payments/:deleteId", async (req, res) => {
       //ch
       const paymentData = req.body;
-      const deleteClassId = req.params.deleteId; //ch
-      console.log(deleteClassId);
+      const deleteClassId = req.params.deleteId;
+      // console.log(deleteClassId);
 
       //DB
       // For post
       const insertResult = await PaymentCollection.insertOne(paymentData);
 
-      //For Delete || ReferenceError: selectClassId is not defined
-      // const query = { _id: new ObjectId(selectClassId) }; //for one
-      const query = { classId: deleteClassId }; //ch
+      //For Delete 
+      const query = { classId: deleteClassId }; //for one
       console.log(query);
       const deleteClass = await SelectClassCollection.deleteOne(query);
-      console.log(deleteClass);
+      // console.log(deleteClass);
       res.send({ insertResult, deleteClass });
     });
 
