@@ -2,7 +2,6 @@ const express = require("express");
 const cors = require("cors");
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-//ch 6:30 no-err
 const stripe = require("stripe")(process.env.PAYMENT_SECRET_TOKEN);
 const app = express();
 const port = process.env.PORT || 5000;
@@ -59,7 +58,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect(); //change
 
     /* All collections here */
     const userCollection = client.db("goalRush").collection("users");
@@ -242,7 +241,17 @@ async function run() {
     //Get all selected classes
     app.get("/all-class/selected", async (req, res) => {
       //DB
-      const result = await SelectClassCollection.find().toArray();
+      const email = req.query.email; // is it right?
+      console.log(email);
+
+      if (!email) {
+        return res.send({ message: "No class found" });
+      }
+      const result = await SelectClassCollection.find({
+        user_email: email,
+      }).toArray();
+
+      console.log(result);
       res.send(result);
     });
 
@@ -339,8 +348,7 @@ async function run() {
 
     //Update specific class
     app.put("/all-class/:id", async (req, res) => {
-      const id = req.params.id;
-      // console.log(id);
+      // const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
 
       const options = { upsert: true };
