@@ -183,7 +183,7 @@ async function run() {
         const query = { role: "instructor" };
 
         const result = await userCollection.find(query).limit(6).toArray();
-        console.log(result);
+        // console.log(result);
         res.send(result);
       }
     );
@@ -238,11 +238,27 @@ async function run() {
       }
     );
 
+    // Get a specific instructor added classes
+    app.get("/instructor-all-class/:email", async (req, res) => {
+      const { email } = req.params;
+
+      if (typeof email !== "string") {
+        return res.status(400).send("Invalid email parameter");
+      }
+      const query = { instructorEmail: email }; 
+
+      try {
+        const instructorAllclass = await classCollection.find(query).toArray();
+        res.status(200).send(instructorAllclass);
+      } catch {
+        console.error("Error executing query:", error);
+        res.status(500).send("An error occurred while fetching classes");
+      }
+    });
+
     //Get all selected classes
     app.get("/all-class/selected", async (req, res) => {
-      //DB
-      const email = req.query.email; // is it right?
-      console.log(email);
+      const email = req.query.email; 
 
       if (!email) {
         return res.send({ message: "No class found" });
@@ -251,7 +267,6 @@ async function run() {
         user_email: email,
       }).toArray();
 
-      console.log(result);
       res.send(result);
     });
 
@@ -259,7 +274,6 @@ async function run() {
     app.get("/all-class/instructor", async (req, res) => {
       const email = req.query?.instructorEmail;
       const query = { instructorEmail: email };
-      // console.log(query);
 
       const result = await classCollection.find(query).toArray();
       res.send(result);
@@ -278,7 +292,6 @@ async function run() {
     app.post("/all-class", async (req, res) => {
       const newClassData = req.body;
 
-      //DB
       const result = await classCollection.insertOne(newClassData);
       res.send(result);
     });
@@ -287,7 +300,6 @@ async function run() {
     app.post("/all-class/selected", async (req, res) => {
       const selectClassData = req.body;
 
-      //DB
       const result = await SelectClassCollection.insertOne(selectClassData);
       res.send(result);
     });
@@ -327,7 +339,6 @@ async function run() {
     //Send feedback
     app.put("/all-class/classFeedback/:id", async (req, res) => {
       const id = req.params.id;
-      // console.log(id);
       const filter = { _id: new ObjectId(id) };
 
       const options = { upsert: true };
@@ -346,9 +357,9 @@ async function run() {
       res.send(result);
     });
 
-    //Update specific class
+    //Update specific class as instructor //problem
     app.put("/all-class/:id", async (req, res) => {
-      // const id = req.params.id;
+      const id = req.params.id;
       const filter = { _id: new ObjectId(id) };
 
       const options = { upsert: true };
@@ -413,17 +424,13 @@ async function run() {
       //ch
       const paymentData = req.body;
       const deleteClassId = req.params.deleteId;
-      // console.log(deleteClassId);
 
-      //DB
-      // For post
+
       const insertResult = await PaymentCollection.insertOne(paymentData);
 
       //For Delete
-      const query = { classId: deleteClassId }; //for one
-      console.log(query);
+      const query = { classId: deleteClassId };
       const deleteClass = await SelectClassCollection.deleteOne(query);
-      // console.log(deleteClass);
       res.send({ insertResult, deleteClass });
     });
 
