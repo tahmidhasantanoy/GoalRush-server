@@ -245,7 +245,7 @@ async function run() {
       if (typeof email !== "string") {
         return res.status(400).send("Invalid email parameter");
       }
-      const query = { instructorEmail: email }; 
+      const query = { instructorEmail: email };
 
       try {
         const instructorAllclass = await classCollection.find(query).toArray();
@@ -258,7 +258,7 @@ async function run() {
 
     //Get all selected classes
     app.get("/all-class/selected", async (req, res) => {
-      const email = req.query.email; 
+      const email = req.query.email;
 
       if (!email) {
         return res.send({ message: "No class found" });
@@ -424,7 +424,6 @@ async function run() {
       //ch
       const paymentData = req.body;
       const deleteClassId = req.params.deleteId;
-
 
       const insertResult = await PaymentCollection.insertOne(paymentData);
 
